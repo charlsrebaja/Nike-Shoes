@@ -4,7 +4,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { Container } from "./container";
 import { cn } from "@/lib/utils";
 import { Button } from "./button";
@@ -86,6 +86,12 @@ export function Navbar() {
                     )}
                   </div>
                 </Link>
+                <Button
+                  variant="secondary"
+                  onClick={() => signOut({ callbackUrl: "/" })}
+                >
+                  Logout
+                </Button>
               </div>
             ) : (
               <>
@@ -166,30 +172,45 @@ export function Navbar() {
                   </Link>
                 </div>
               ) : (
-                <Link
-                  href="/profile"
-                  className="pt-4 border-t border-gray-100"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  <div className="flex items-center space-x-2">
-                    {session.user.image ? (
-                      <img
-                        src={session.user.image}
-                        alt={session.user.name || "User"}
-                        className="h-8 w-8 rounded-full"
-                      />
-                    ) : (
-                      <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
-                        <span className="text-sm font-medium text-gray-600">
-                          {session.user.name?.charAt(0) || "U"}
-                        </span>
-                      </div>
-                    )}
-                    <span className="text-gray-700">
-                      {session.user.name || session.user.email}
-                    </span>
+                <div>
+                  <Link
+                    href="/profile"
+                    className="pt-4 border-t border-gray-100 block"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <div className="flex items-center space-x-2">
+                      {session.user.image ? (
+                        <img
+                          src={session.user.image}
+                          alt={session.user.name || "User"}
+                          className="h-8 w-8 rounded-full"
+                        />
+                      ) : (
+                        <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
+                          <span className="text-sm font-medium text-gray-600">
+                            {session.user.name?.charAt(0) || "U"}
+                          </span>
+                        </div>
+                      )}
+                      <span className="text-gray-700">
+                        {session.user.name || session.user.email}
+                      </span>
+                    </div>
+                  </Link>
+
+                  <div className="pt-4 border-t border-gray-100">
+                    <Button
+                      variant="secondary"
+                      fullWidth
+                      onClick={() => {
+                        setIsMobileMenuOpen(false);
+                        signOut({ callbackUrl: "/" });
+                      }}
+                    >
+                      Logout
+                    </Button>
                   </div>
-                </Link>
+                </div>
               )}
             </nav>
           </div>

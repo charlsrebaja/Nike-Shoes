@@ -2,6 +2,7 @@
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { prisma } from "@/lib/db/prisma";
+import { Decimal } from "@prisma/client/runtime/library";
 import { Container } from "@/components/ui/container";
 import { ProductDetails } from "./product-details";
 
@@ -66,6 +67,17 @@ export default async function ProductPage({ params }: ProductPageProps) {
     notFound();
   }
 
+  // Convert Decimal and JSON fields to plain JS types for the client component
+  const formattedProduct = {
+    ...product,
+    price: product.price instanceof Decimal ? Number(product.price) : (product.price as unknown as number),
+    sizes: product.sizes as Record<string, number>,
+    reviews: product.reviews.map((review) => ({
+      ...review,
+      comment: review.comment ?? "",
+    })),
+  };
+
   // Fetch related products in the same category
   const relatedProducts = await prisma.product.findMany({
     where: {
@@ -85,10 +97,16 @@ export default async function ProductPage({ params }: ProductPageProps) {
     take: 4,
   });
 
+  const formattedRelated = relatedProducts.map((p) => ({
+    ...p,
+    price: p.price instanceof Decimal ? Number(p.price) : (p.price as unknown as number),
+    sizes: p.sizes as Record<string, number>,
+  }));
+
   return (
     <div className="py-8">
       <Container>
-        <ProductDetails product={product} relatedProducts={relatedProducts} />
+        <ProductDetails product={formattedProduct} relatedProducts={formattedRelated} />
       </Container>
     </div>
   );

@@ -5,14 +5,14 @@ import Stripe from "stripe";
 import { prisma } from "@/lib/db/prisma";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
-  apiVersion: "2023-08-16",
+  apiVersion: "2025-07-30.basil",
 });
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
 export async function POST(request: Request) {
   const body = await request.text();
-  const signature = headers().get("Stripe-Signature") as string;
+  const signature = (await headers()).get("Stripe-Signature") as string;
 
   let event: Stripe.Event;
 

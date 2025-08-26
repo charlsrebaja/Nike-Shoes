@@ -23,5 +23,9 @@ declare module "next-auth/jwt" {
   interface JWT {
     id: string;
     role: Role;
+    // Optional standard fields that may be present on the token
+    name?: string | null;
+    email?: string | null;
+    picture?: string | null;
   }
 }

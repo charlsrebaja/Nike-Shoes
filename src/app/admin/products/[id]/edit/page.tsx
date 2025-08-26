@@ -5,7 +5,6 @@ import { redirect, notFound } from "next/navigation";
 import { prisma } from "@/lib/db/prisma";
 import { authOptions } from "@/lib/auth/auth-options";
 import { ProductForm } from "../../product-form";
-import { Decimal } from "@prisma/client/runtime/library";
 
 export const metadata: Metadata = {
   title: "Edit Product | Admin | Nike Shoes Shop",
@@ -48,8 +47,7 @@ export default async function EditProductPage({
   // Convert Decimal to number for the form component
   const formattedProduct = {
     ...product,
-    price:
-      product.price instanceof Decimal ? Number(product.price) : product.price,
+    price: Number(product.price),
     sizes: product.sizes as Record<string, number>,
   };
 

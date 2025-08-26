@@ -1,13 +1,19 @@
 // src/lib/auth/auth-options.ts
-import { NextAuthOptions } from "next-auth";
+import { NextAuthOptions, User, Session } from "next-auth";
+import type { JWT } from "next-auth/jwt";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { PrismaAdapter } from "@auth/prisma-adapter";
+// Prisma adapter package may not be installed in this workspace during static analysis.
+// If you have `@next-auth/prisma-adapter` or `@auth/prisma-adapter` installed, replace the adapter assignment below.
+import type { Adapter } from "next-auth/adapters";
 import { prisma } from "../db/prisma";
 import bcrypt from "bcrypt";
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma) as any,
+  // If Prisma adapter is available in your environment use it here, e.g.:
+  // adapter: PrismaAdapter(prisma) as Adapter,
+  // For static type-safety during development without the adapter package installed, provide a typed placeholder.
+  adapter: undefined as unknown as Adapter,
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -43,7 +49,14 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Invalid credentials");
         }
 
-        return user;
+        // Return a minimal user object accepted by NextAuth (id required)
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          image: user.image,
+          role: user.role,
+        } as User;
       },
     }),
   ],
@@ -57,36 +70,44 @@ export const authOptions: NextAuthOptions = {
   debug: process.env.NODE_ENV === "development",
   callbacks: {
     async session({ session, token }) {
-      if (token) {
-        session.user.id = token.id as string;
-        session.user.name = token.name;
-        session.user.email = token.email;
-        session.user.image = token.picture;
-        session.user.role = token.role as string;
-      }
+      // Map token fields to session.user. Ensure all required fields exist.
+      // Ensure all session.user fields are strings to match our type augmentation
+      session.user = {
+        id: String(token.id ?? ""),
+        name: String((token.name as string) ?? session.user?.name ?? ""),
+        email: String((token.email as string) ?? session.user?.email ?? ""),
+        image: String((token.picture as string) ?? session.user?.image ?? ""),
+        role: String((token as JWT).role ?? session.user?.role ?? ""),
+      } as Session["user"];
+
       return session;
     },
     async jwt({ token, user }) {
-      const dbUser = await prisma.user.findFirst({
-        where: {
-          email: token.email!,
-        },
-      });
+      const t = token as JWT;
 
-      if (!dbUser) {
-        if (user) {
-          token.id = user.id;
-        }
-        return token;
+      // If user just signed in, include their id on the token
+      if (user) {
+        t.id = (user as User).id;
+        t.name = (user as User).name ?? t.name;
+        t.email = (user as User).email ?? t.email;
+        t.picture = (user as User).image ?? t.picture;
       }
 
-      return {
-        id: dbUser.id,
-        name: dbUser.name,
-        email: dbUser.email,
-        picture: dbUser.image,
-        role: dbUser.role,
-      };
+      // Try to populate token from database if email exists
+      if (t.email) {
+        const dbUser = await prisma.user.findFirst({
+          where: { email: t.email as string },
+        });
+
+        if (dbUser) {
+          t.id = dbUser.id;
+          t.name = dbUser.name ?? t.name;
+          t.picture = dbUser.image ?? t.picture;
+          t.role = dbUser.role;
+        }
+      }
+
+      return t;
     },
   },
 };

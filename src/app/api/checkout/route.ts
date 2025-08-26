@@ -4,11 +4,11 @@ import { getServerSession } from "next-auth/next";
 import Stripe from "stripe";
 import { authOptions } from "@/lib/auth/auth-options";
 import { prisma } from "@/lib/db/prisma";
-import { CheckoutItem, CheckoutRequestData } from "@/lib/types/checkout";
+import { CheckoutRequestData } from "@/lib/types/checkout";
 
 // Initialize Stripe
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
-  apiVersion: "2023-08-16", // Use a compatible version
+  apiVersion: "2025-07-30.basil", // Use the required Stripe API version
 });
 
 export async function POST(request: Request) {

@@ -2,7 +2,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
@@ -20,7 +19,7 @@ interface CategoryManagerProps {
 }
 
 export function CategoryManager({ initialCategories }: CategoryManagerProps) {
-  const router = useRouter(); // Keep for potential future use
+  // Removed unused router variable
   const [categories, setCategories] = useState<Category[]>(initialCategories);
   const [newCategoryName, setNewCategoryName] = useState("");
   const [editingCategory, setEditingCategory] = useState<{

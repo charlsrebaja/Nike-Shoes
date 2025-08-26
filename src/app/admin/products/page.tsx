@@ -19,7 +19,7 @@ export default async function AdminProductsPage() {
     redirect("/");
   }
 
-  const products = await prisma.product.findMany({
+  const productsRaw = await prisma.product.findMany({
     include: {
       category: true,
     },
@@ -27,6 +27,12 @@ export default async function AdminProductsPage() {
       createdAt: "desc",
     },
   });
+
+  // Convert price from Decimal to string
+  const products = productsRaw.map(product => ({
+    ...product,
+    price: product.price.toString(),
+  }));
 
   const categories = await prisma.category.findMany({
     orderBy: {

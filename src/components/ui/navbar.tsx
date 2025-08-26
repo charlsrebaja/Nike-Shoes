@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
+import Image from "next/image";
 import { Container } from "./container";
 import { cn } from "@/lib/utils";
 import { Button } from "./button";
@@ -72,9 +73,11 @@ export function Navbar() {
                 <Link href="/profile">
                   <div className="flex items-center space-x-2">
                     {session.user.image ? (
-                      <img
+                      <Image
                         src={session.user.image}
                         alt={session.user.name || "User"}
+                        width={32}
+                        height={32}
                         className="h-8 w-8 rounded-full"
                       />
                     ) : (
@@ -86,10 +89,7 @@ export function Navbar() {
                     )}
                   </div>
                 </Link>
-                <Button
-                  variant="secondary"
-                  onClick={() => signOut({ callbackUrl: "/" })}
-                >
+                <Button variant="secondary" onClick={() => signOut({ callbackUrl: "/" })}>
                   Logout
                 </Button>
               </div>
@@ -180,9 +180,11 @@ export function Navbar() {
                   >
                     <div className="flex items-center space-x-2">
                       {session.user.image ? (
-                        <img
+                        <Image
                           src={session.user.image}
                           alt={session.user.name || "User"}
+                          width={32}
+                          height={32}
                           className="h-8 w-8 rounded-full"
                         />
                       ) : (

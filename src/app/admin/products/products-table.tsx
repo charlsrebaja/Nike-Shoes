@@ -31,50 +31,52 @@ interface ProductsTableProps {
   categories: Category[];
 }
 
-export function ProductsTable({ products: initialProducts, categories }: ProductsTableProps) {
+export function ProductsTable({
+  products: initialProducts,
+  categories,
+}: ProductsTableProps) {
   const router = useRouter();
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [deleteProductId, setDeleteProductId] = useState<string | null>(null);
-  
+
   // Filter products based on search query and category
   const filteredProducts = products.filter((product) => {
     const matchesSearch = product.name
       .toLowerCase()
       .includes(searchQuery.toLowerCase());
-      
-    const matchesCategory = 
-      selectedCategory === "all" || 
-      product.category.id === selectedCategory;
-      
+
+    const matchesCategory =
+      selectedCategory === "all" || product.category.id === selectedCategory;
+
     return matchesSearch && matchesCategory;
   });
 
   const handleCreateProduct = () => {
     router.push("/admin/products/new");
   };
-  
+
   const handleDeleteProduct = async (id: string) => {
     if (!confirm("Are you sure you want to delete this product?")) {
       return;
     }
-    
+
     setIsLoading(true);
     setDeleteProductId(id);
-    
+
     try {
       const response = await fetch(`/api/admin/products/${id}`, {
         method: "DELETE",
       });
-      
+
       if (!response.ok) {
         throw new Error("Failed to delete product");
       }
-      
+
       // Remove product from list
-      setProducts(products.filter(product => product.id !== id));
+      setProducts(products.filter((product) => product.id !== id));
     } catch (error) {
       console.error("Error deleting product:", error);
       alert("Failed to delete product. Please try again.");
@@ -107,30 +109,43 @@ export function ProductsTable({ products: initialProducts, categories }: Product
             ))}
           </select>
         </div>
-        
-        <Button onClick={handleCreateProduct}>
-          Add New Product
-        </Button>
+
+        <Button onClick={handleCreateProduct}>Add New Product</Button>
       </div>
-      
+
       {/* Products Table */}
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
                 Product
               </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
                 Category
               </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
                 Price
               </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
                 Status
               </th>
-              <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th
+                scope="col"
+                className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
                 Actions
               </th>
             </tr>
@@ -143,8 +158,8 @@ export function ProductsTable({ products: initialProducts, categories }: Product
                     <div className="flex items-center">
                       <div className="flex-shrink-0 h-10 w-10 relative">
                         {product.images && product.images[0] ? (
-                          <Image 
-                            src={product.images[0]} 
+                          <Image
+                            src={product.images[0]}
                             alt={product.name}
                             fill
                             className="rounded-md object-cover"
@@ -166,10 +181,14 @@ export function ProductsTable({ products: initialProducts, categories }: Product
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{product.category.name}</div>
+                    <div className="text-sm text-gray-900">
+                      {product.category.name}
+                    </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">${Number(product.price).toFixed(2)}</div>
+                    <div className="text-sm text-gray-900">
+                      ${Number(product.price).toFixed(2)}
+                    </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="space-y-1">
@@ -193,11 +212,13 @@ export function ProductsTable({ products: initialProducts, categories }: Product
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex justify-end space-x-2">
                       <Link href={`/admin/products/${product.id}/edit`}>
-                        <Button variant="secondary" size="sm">Edit</Button>
+                        <Button variant="secondary" size="sm">
+                          Edit
+                        </Button>
                       </Link>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
+                      <Button
+                        variant="outline"
+                        size="sm"
                         onClick={() => handleDeleteProduct(product.id)}
                         disabled={isLoading && deleteProductId === product.id}
                       >
@@ -213,7 +234,10 @@ export function ProductsTable({ products: initialProducts, categories }: Product
               ))
             ) : (
               <tr>
-                <td colSpan={5} className="px-6 py-4 whitespace-nowrap text-center">
+                <td
+                  colSpan={5}
+                  className="px-6 py-4 whitespace-nowrap text-center"
+                >
                   <div className="text-gray-500">No products found</div>
                 </td>
               </tr>

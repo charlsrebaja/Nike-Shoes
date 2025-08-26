@@ -43,25 +43,49 @@ interface ProductFormProps {
 }
 
 // Available sizes for Nike shoes
-const availableSizes = ["US 7", "US 7.5", "US 8", "US 8.5", "US 9", "US 9.5", "US 10", "US 10.5", "US 11", "US 12"];
+const availableSizes = [
+  "US 7",
+  "US 7.5",
+  "US 8",
+  "US 8.5",
+  "US 9",
+  "US 9.5",
+  "US 10",
+  "US 10.5",
+  "US 11",
+  "US 12",
+];
 
 // Some common Nike shoe colors
-const commonColors = ["Black", "White", "Red", "Blue", "Grey", "Green", "Orange", "Pink", "Purple", "Yellow"];
+const commonColors = [
+  "Black",
+  "White",
+  "Red",
+  "Blue",
+  "Grey",
+  "Green",
+  "Orange",
+  "Pink",
+  "Purple",
+  "Yellow",
+];
 
 export function ProductForm({ product, categories }: ProductFormProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  
+
   // Initialize form data with product values if editing, or default values if creating new
   const [formData, setFormData] = useState<ProductFormData>({
     name: product?.name || "",
     description: product?.description || "",
     price: product?.price ? String(product.price) : "",
     images: product?.images || ["", "", ""],
-    categoryId: product?.categoryId || (categories[0]?.id || ""),
-    sizes: product?.sizes || availableSizes.reduce((acc, size) => ({ ...acc, [size]: 0 }), {}),
+    categoryId: product?.categoryId || categories[0]?.id || "",
+    sizes:
+      product?.sizes ||
+      availableSizes.reduce((acc, size) => ({ ...acc, [size]: 0 }), {}),
     colors: product?.colors || [],
     featured: product?.featured || false,
     bestseller: product?.bestseller || false,
@@ -69,13 +93,20 @@ export function ProductForm({ product, categories }: ProductFormProps) {
   });
 
   const [selectedColors, setSelectedColors] = useState<Record<string, boolean>>(
-    commonColors.reduce((acc, color) => ({
-      ...acc,
-      [color]: formData.colors.includes(color),
-    }), {})
+    commonColors.reduce(
+      (acc, color) => ({
+        ...acc,
+        [color]: formData.colors.includes(color),
+      }),
+      {}
+    )
   );
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -106,12 +137,12 @@ export function ProductForm({ product, categories }: ProductFormProps) {
       ...prev,
       [color]: !prev[color],
     }));
-    
+
     // Update formData.colors based on selected colors
-    const newColors = Object.keys(selectedColors).filter(
-      (color) => color === color ? !selectedColors[color] : selectedColors[color]
+    const newColors = Object.keys(selectedColors).filter((color) =>
+      color === color ? !selectedColors[color] : selectedColors[color]
     );
-    
+
     setFormData((prev) => ({
       ...prev,
       colors: newColors,
@@ -140,13 +171,15 @@ export function ProductForm({ product, categories }: ProductFormProps) {
       const activeColors = Object.keys(selectedColors).filter(
         (color) => selectedColors[color]
       );
-      
+
       if (activeColors.length === 0) {
         throw new Error("Please select at least one color");
       }
-      
+
       // Check if any sizes have stock
-      const hasSizesInStock = Object.values(formData.sizes).some((stock) => stock > 0);
+      const hasSizesInStock = Object.values(formData.sizes).some(
+        (stock) => stock > 0
+      );
       if (!hasSizesInStock) {
         throw new Error("Please add stock for at least one size");
       }
@@ -160,10 +193,10 @@ export function ProductForm({ product, categories }: ProductFormProps) {
       };
 
       // Determine if we're creating or updating a product
-      const url = product 
-        ? `/api/admin/products/${product.id}` 
+      const url = product
+        ? `/api/admin/products/${product.id}`
         : "/api/admin/products";
-      
+
       const method = product ? "PUT" : "POST";
 
       // Submit the form
@@ -181,9 +214,9 @@ export function ProductForm({ product, categories }: ProductFormProps) {
       }
 
       const result = await response.json();
-      
+
       setSuccessMessage("Product saved successfully!");
-      
+
       // If creating a new product, redirect to edit page after a brief delay
       if (!product) {
         setTimeout(() => {
@@ -195,7 +228,9 @@ export function ProductForm({ product, categories }: ProductFormProps) {
       }
     } catch (err) {
       console.error("Error saving product:", err);
-      setError(err instanceof Error ? err.message : "An unknown error occurred");
+      setError(
+        err instanceof Error ? err.message : "An unknown error occurred"
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -208,20 +243,23 @@ export function ProductForm({ product, categories }: ProductFormProps) {
           {error}
         </div>
       )}
-      
+
       {successMessage && (
         <div className="bg-green-50 border border-green-200 text-green-600 px-4 py-3 rounded-md">
           {successMessage}
         </div>
       )}
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Basic Product Information */}
         <div className="space-y-4">
           <h2 className="text-lg font-medium">Basic Information</h2>
-          
+
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="name"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Product Name*
             </label>
             <Input
@@ -232,9 +270,12 @@ export function ProductForm({ product, categories }: ProductFormProps) {
               required
             />
           </div>
-          
+
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="description"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Description
             </label>
             <textarea
@@ -246,9 +287,12 @@ export function ProductForm({ product, categories }: ProductFormProps) {
               onChange={handleInputChange}
             ></textarea>
           </div>
-          
+
           <div>
-            <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="price"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Price ($)*
             </label>
             <Input
@@ -262,9 +306,12 @@ export function ProductForm({ product, categories }: ProductFormProps) {
               required
             />
           </div>
-          
+
           <div>
-            <label htmlFor="categoryId" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="categoryId"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Category*
             </label>
             <select
@@ -283,14 +330,14 @@ export function ProductForm({ product, categories }: ProductFormProps) {
             </select>
           </div>
         </div>
-        
+
         {/* Product Images */}
         <div className="space-y-4">
           <h2 className="text-lg font-medium">Product Images</h2>
           <p className="text-sm text-gray-500 mb-2">
             Enter URLs for product images (at least one required)
           </p>
-          
+
           {formData.images.map((image, index) => (
             <div key={index}>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -304,36 +351,36 @@ export function ProductForm({ product, categories }: ProductFormProps) {
               />
             </div>
           ))}
-          
+
           {formData.images.length < 6 && (
-            <Button 
-              type="button" 
+            <Button
+              type="button"
               variant="outline"
-              onClick={() => setFormData((prev) => ({
-                ...prev,
-                images: [...prev.images, ""],
-              }))}
+              onClick={() =>
+                setFormData((prev) => ({
+                  ...prev,
+                  images: [...prev.images, ""],
+                }))
+              }
             >
               Add Another Image
             </Button>
           )}
         </div>
       </div>
-      
+
       {/* Sizes and Stock */}
       <div className="mt-8">
         <h2 className="text-lg font-medium mb-4">Sizes & Stock</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
           {availableSizes.map((size) => (
             <div key={size} className="border rounded-md p-3">
-              <label className="block text-sm font-medium mb-1">
-                {size}
-              </label>
+              <label className="block text-sm font-medium mb-1">{size}</label>
               <Input
                 type="number"
                 min="0"
                 value={formData.sizes[size] || 0}
-                onChange={(e) => 
+                onChange={(e) =>
                   handleSizeStockChange(size, parseInt(e.target.value) || 0)
                 }
                 className="w-full"
@@ -342,13 +389,13 @@ export function ProductForm({ product, categories }: ProductFormProps) {
           ))}
         </div>
       </div>
-      
+
       {/* Colors */}
       <div className="mt-8">
         <h2 className="text-lg font-medium mb-4">Colors</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
           {commonColors.map((color) => (
-            <div 
+            <div
               key={color}
               className={`border rounded-md p-3 cursor-pointer ${
                 selectedColors[color] ? "bg-gray-100 border-black" : ""
@@ -368,7 +415,7 @@ export function ProductForm({ product, categories }: ProductFormProps) {
           ))}
         </div>
       </div>
-      
+
       {/* Product Flags */}
       <div className="mt-8">
         <h2 className="text-lg font-medium mb-4">Product Status</h2>
@@ -382,11 +429,14 @@ export function ProductForm({ product, categories }: ProductFormProps) {
               onChange={handleCheckboxChange}
               className="h-4 w-4 text-black focus:ring-black border-gray-300 rounded"
             />
-            <label htmlFor="featured" className="ml-2 block text-sm text-gray-900">
+            <label
+              htmlFor="featured"
+              className="ml-2 block text-sm text-gray-900"
+            >
               Featured Product
             </label>
           </div>
-          
+
           <div className="flex items-center">
             <input
               type="checkbox"
@@ -396,11 +446,14 @@ export function ProductForm({ product, categories }: ProductFormProps) {
               onChange={handleCheckboxChange}
               className="h-4 w-4 text-black focus:ring-black border-gray-300 rounded"
             />
-            <label htmlFor="newArrival" className="ml-2 block text-sm text-gray-900">
+            <label
+              htmlFor="newArrival"
+              className="ml-2 block text-sm text-gray-900"
+            >
               New Arrival
             </label>
           </div>
-          
+
           <div className="flex items-center">
             <input
               type="checkbox"
@@ -410,13 +463,16 @@ export function ProductForm({ product, categories }: ProductFormProps) {
               onChange={handleCheckboxChange}
               className="h-4 w-4 text-black focus:ring-black border-gray-300 rounded"
             />
-            <label htmlFor="bestseller" className="ml-2 block text-sm text-gray-900">
+            <label
+              htmlFor="bestseller"
+              className="ml-2 block text-sm text-gray-900"
+            >
               Bestseller
             </label>
           </div>
         </div>
       </div>
-      
+
       {/* Submit Button */}
       <div className="mt-8 flex justify-end">
         <Button
@@ -433,8 +489,10 @@ export function ProductForm({ product, categories }: ProductFormProps) {
               <Spinner size="small" className="mr-2" />
               {product ? "Updating..." : "Creating..."}
             </>
+          ) : product ? (
+            "Update Product"
           ) : (
-            product ? "Update Product" : "Create Product"
+            "Create Product"
           )}
         </Button>
       </div>

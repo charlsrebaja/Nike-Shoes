@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 export default async function NewProductPage() {
   // Verify admin in server component
   const session = await getServerSession(authOptions);
-  
+
   if (!session || session.user.role !== "ADMIN") {
     redirect("/");
   }
@@ -31,7 +31,7 @@ export default async function NewProductPage() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Add New Product</h1>
       </div>
-      
+
       <ProductForm categories={categories} />
     </div>
   );

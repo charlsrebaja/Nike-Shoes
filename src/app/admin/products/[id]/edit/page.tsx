@@ -18,10 +18,12 @@ interface EditProductPageProps {
   };
 }
 
-export default async function EditProductPage({ params }: EditProductPageProps) {
+export default async function EditProductPage({
+  params,
+}: EditProductPageProps) {
   // Verify admin in server component
   const session = await getServerSession(authOptions);
-  
+
   if (!session || session.user.role !== "ADMIN") {
     redirect("/");
   }
@@ -46,7 +48,8 @@ export default async function EditProductPage({ params }: EditProductPageProps) 
   // Convert Decimal to number for the form component
   const formattedProduct = {
     ...product,
-    price: product.price instanceof Decimal ? Number(product.price) : product.price,
+    price:
+      product.price instanceof Decimal ? Number(product.price) : product.price,
     sizes: product.sizes as Record<string, number>,
   };
 
@@ -55,7 +58,7 @@ export default async function EditProductPage({ params }: EditProductPageProps) 
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Edit Product: {product.name}</h1>
       </div>
-      
+
       <ProductForm product={formattedProduct} categories={categories} />
     </div>
   );

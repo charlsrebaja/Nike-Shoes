@@ -8,12 +8,18 @@ import { authOptions } from "@/lib/auth/auth-options";
 // Define the product schema for validation
 const productSchema = z.object({
   name: z.string().min(3, { message: "Name must be at least 3 characters" }),
-  description: z.string().min(10, { message: "Description must be at least 10 characters" }),
+  description: z
+    .string()
+    .min(10, { message: "Description must be at least 10 characters" }),
   price: z.number().positive({ message: "Price must be a positive number" }),
   categoryId: z.string().min(1, { message: "Category is required" }),
-  images: z.array(z.string().url()).min(1, { message: "At least one image is required" }),
+  images: z
+    .array(z.string().url())
+    .min(1, { message: "At least one image is required" }),
   sizes: z.record(z.string(), z.number().int().nonnegative()),
-  colors: z.array(z.string()).min(1, { message: "At least one color is required" }),
+  colors: z
+    .array(z.string())
+    .min(1, { message: "At least one color is required" }),
   featured: z.boolean().default(false),
   bestseller: z.boolean().default(false),
   newArrival: z.boolean().default(false),
@@ -25,16 +31,13 @@ export async function POST(request: NextRequest) {
     // Check authentication and admin role
     const session = await getServerSession(authOptions);
     if (!session || session.user.role !== "ADMIN") {
-      return NextResponse.json(
-        { message: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
     // Parse and validate request body
     const body = await request.json();
     const result = productSchema.safeParse(body);
-    
+
     if (!result.success) {
       return NextResponse.json(
         { message: "Invalid data", errors: result.error.format() },
@@ -74,17 +77,14 @@ export async function GET(request: NextRequest) {
     // Check authentication and admin role
     const session = await getServerSession(authOptions);
     if (!session || session.user.role !== "ADMIN") {
-      return NextResponse.json(
-        { message: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
     // Get query parameters
     const url = new URL(request.url);
     const category = url.searchParams.get("category");
-    const featured = url.searchParams.has("featured") 
-      ? url.searchParams.get("featured") === "true" 
+    const featured = url.searchParams.has("featured")
+      ? url.searchParams.get("featured") === "true"
       : undefined;
     const bestseller = url.searchParams.has("bestseller")
       ? url.searchParams.get("bestseller") === "true"
@@ -92,7 +92,7 @@ export async function GET(request: NextRequest) {
     const newArrival = url.searchParams.has("newArrival")
       ? url.searchParams.get("newArrival") === "true"
       : undefined;
-    
+
     // Build filter conditions
     const whereClause: {
       categoryId?: string;
@@ -100,19 +100,19 @@ export async function GET(request: NextRequest) {
       bestseller?: boolean;
       newArrival?: boolean;
     } = {};
-    
+
     if (category) {
       whereClause.categoryId = category;
     }
-    
+
     if (featured !== undefined) {
       whereClause.featured = featured;
     }
-    
+
     if (bestseller !== undefined) {
       whereClause.bestseller = bestseller;
     }
-    
+
     if (newArrival !== undefined) {
       whereClause.newArrival = newArrival;
     }

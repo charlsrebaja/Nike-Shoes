@@ -41,12 +41,22 @@ export function Navbar() {
   });
 
   return (
-    <header className="bg-white border-b border-gray-200">
+    <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
       <Container>
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
-            <Link href="/" className="text-xl font-bold text-black">
-              Nike Shop
+            <Link
+              href="/"
+              className="flex items-center text-xl font-bold text-black"
+            >
+              <Image
+                src="/logo.jpg"
+                alt="Nike Shop"
+                width={36}
+                height={36}
+                className="object-contain mr-2"
+              />
+              <span>Nike Shop</span>
             </Link>
           </div>
 
@@ -89,7 +99,10 @@ export function Navbar() {
                     )}
                   </div>
                 </Link>
-                <Button variant="secondary" onClick={() => signOut({ callbackUrl: "/" })}>
+                <Button
+                  variant="secondary"
+                  onClick={() => signOut({ callbackUrl: "/" })}
+                >
                   Logout
                 </Button>
               </div>

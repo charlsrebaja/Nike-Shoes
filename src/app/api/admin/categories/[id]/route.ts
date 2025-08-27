@@ -16,7 +16,7 @@ const categorySchema = z.object({
 // GET - Get a category by ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params?: Promise<{ id: string }> | { id: string } }
 ) {
   try {
     // Check authentication and admin role
@@ -25,7 +25,8 @@ export async function GET(
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const { id } = params;
+    const params = await (context?.params ?? {});
+    const { id } = params as { id: string };
 
     const category = await prisma.category.findUnique({
       where: { id },
@@ -58,7 +59,7 @@ export async function GET(
 // PUT - Update a category
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params?: Promise<{ id: string }> | { id: string } }
 ) {
   try {
     // Check authentication and admin role
@@ -67,7 +68,8 @@ export async function PUT(
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const { id } = params;
+    const params = await (context?.params ?? {});
+    const { id } = params as { id: string };
 
     // Check if category exists
     const existingCategory = await prisma.category.findUnique({
@@ -133,7 +135,7 @@ export async function PUT(
 // DELETE - Delete a category
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params?: Promise<{ id: string }> | { id: string } }
 ) {
   try {
     // Check authentication and admin role
@@ -142,7 +144,8 @@ export async function DELETE(
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const { id } = params;
+    const params = await (context?.params ?? {});
+    const { id } = params as { id: string };
 
     // Check if category exists
     const existingCategory = await prisma.category.findUnique({

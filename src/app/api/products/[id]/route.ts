@@ -4,10 +4,11 @@ import { prisma } from "@/lib/db/prisma";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params?: Promise<{ id: string }> | { id: string } }
 ) {
   try {
-    const productId = params.id;
+    const params = await (context?.params ?? {});
+    const productId = (params as { id?: string }).id;
 
     if (!productId) {
       return NextResponse.json(
@@ -50,7 +51,7 @@ export async function GET(
     let averageRating = 0;
     if (product.reviews.length > 0) {
       const totalRating = product.reviews.reduce(
-        (sum, review) => sum + review.rating,
+        (sum: number, review: { rating: number }) => sum + review.rating,
         0
       );
       averageRating = totalRating / product.reviews.length;

@@ -28,7 +28,7 @@ const productSchema = z.object({
 // GET - Get a product by ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params?: Promise<{ id: string }> | { id: string } }
 ) {
   try {
     // Check authentication and admin role
@@ -37,7 +37,8 @@ export async function GET(
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const { id } = params;
+    const params = await (context?.params ?? {});
+    const { id } = params as { id: string };
 
     const product = await prisma.product.findUnique({
       where: { id },
@@ -66,7 +67,7 @@ export async function GET(
 // PUT - Update a product
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params?: Promise<{ id: string }> | { id: string } }
 ) {
   try {
     // Check authentication and admin role
@@ -75,7 +76,8 @@ export async function PUT(
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const { id } = params;
+    const params = await (context?.params ?? {});
+    const { id } = params as { id: string };
 
     // Check if product exists
     const existingProduct = await prisma.product.findUnique({
@@ -130,7 +132,7 @@ export async function PUT(
 // DELETE - Delete a product
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params?: Promise<{ id: string }> | { id: string } }
 ) {
   try {
     // Check authentication and admin role
@@ -139,7 +141,8 @@ export async function DELETE(
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const { id } = params;
+    const params = await (context?.params ?? {});
+    const { id } = params as { id: string };
 
     // Check if product exists
     const existingProduct = await prisma.product.findUnique({

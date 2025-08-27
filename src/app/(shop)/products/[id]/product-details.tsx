@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/products/product-card";
 
-interface Review {
+export interface Review {
   id: string;
   rating: number;
   comment: string;
@@ -22,7 +22,7 @@ interface Review {
 }
 
 // Based on our schema where sizes and colors are stored in the Product model
-interface Product {
+export interface Product {
   id: string;
   name: string;
   description: string | null;
@@ -40,7 +40,7 @@ interface Product {
   bestseller: boolean;
 }
 
-interface RelatedProduct {
+export interface RelatedProduct {
   id: string;
   name: string;
   price: number;
@@ -54,7 +54,7 @@ interface RelatedProduct {
   bestseller: boolean;
 }
 
-interface ProductDetailsProps {
+export interface ProductDetailsProps {
   product: Product;
   relatedProducts: RelatedProduct[];
 }

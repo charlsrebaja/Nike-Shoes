@@ -7,6 +7,10 @@ import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/ui/navbar";
 import { Footer } from "@/components/ui/footer";
+import { prisma } from "@/lib/db/prisma";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import type { Product, Category } from "@/generated/prisma";
+import { ProductCard } from "@/components/products/product-card";
 
 const categoryImages: Record<string, string> = {
   Running: "/images/categories/running.jpg",
@@ -15,10 +19,44 @@ const categoryImages: Record<string, string> = {
   Training: "/images/categories/training.jpg",
 };
 
-export default function Home() {
+export default async function Home() {
+  // Server-side fetch: categories and featured products
+  let categories: Category[] = [];
+  let featuredProducts: (Product & { category?: Category | null })[] = [];
+  let dbError: Error | null = null;
+
+  try {
+    [categories, featuredProducts] = await Promise.all([
+      prisma.category.findMany({ take: 4, orderBy: { createdAt: "desc" } }),
+      prisma.product.findMany({
+        where: { featured: true },
+        take: 4,
+        include: { category: true },
+        orderBy: { createdAt: "desc" },
+      }),
+    ]);
+  } catch (e: unknown) {
+    // Capture the error and continue rendering fallbacks so the app doesn't crash
+    dbError = e instanceof Error ? e : new Error(String(e));
+    categories = [];
+    featuredProducts = [];
+    console.error("Prisma query failed on Home page:", dbError);
+  }
   return (
     <>
       <Navbar />
+      {dbError ? (
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-6">
+          <Alert variant="warning">
+            <AlertTitle>Database connection problem</AlertTitle>
+            <AlertDescription>
+              The site is unable to reach the database right now. You can still
+              browse the static content; dynamic data will appear once the
+              database is available.
+            </AlertDescription>
+          </Alert>
+        </div>
+      ) : null}
       <main>
         {/* Hero Section */}
         <section className="bg-gray-100 py-16">
@@ -63,39 +101,75 @@ export default function Home() {
               Shop by Category
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {["Running", "Basketball", "Lifestyle", "Training"].map(
-                (category) => (
-                  <div
-                    key={category}
-                    className="relative h-60 group overflow-hidden rounded-lg bg-gray-100"
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent z-10"></div>
-                    <div className="absolute inset-0 transition-transform duration-300 group-hover:scale-110">
-                      <Image
-                        src={
-                          categoryImages[category] ??
-                          "/images/categories/placeholder.svg"
-                        }
-                        alt={`${category} Shoes`}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                    <div className="absolute bottom-0 left-0 p-4 z-20 w-full">
-                      <h3 className="text-xl font-bold text-white mb-2">
-                        {category}
-                      </h3>
-                      <Link
-                        href={`/products?category=${category.toLowerCase()}`}
+              {categories.length === 0
+                ? // fallback to the original category list when DB is empty
+                  ["Running", "Basketball", "Lifestyle", "Training"].map(
+                    (category) => (
+                      <div
+                        key={category}
+                        className="relative h-60 group overflow-hidden rounded-lg bg-gray-100"
                       >
-                        <Button variant="secondary" size="sm">
-                          Shop Now
-                        </Button>
-                      </Link>
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent z-10"></div>
+                        <div className="absolute inset-0 transition-transform duration-300 group-hover:scale-110">
+                          <Image
+                            src={
+                              categoryImages[category] ??
+                              "/images/categories/placeholder.svg"
+                            }
+                            alt={`${category} Shoes`}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                        <div className="absolute bottom-0 left-0 p-4 z-20 w-full">
+                          <h3 className="text-xl font-bold text-white mb-2">
+                            {category}
+                          </h3>
+                          <Link
+                            href={`/products?category=${category.toLowerCase()}`}
+                          >
+                            <Button variant="secondary" size="sm">
+                              Shop Now
+                            </Button>
+                          </Link>
+                        </div>
+                      </div>
+                    )
+                  )
+                : categories.map((cat) => (
+                    <div
+                      key={cat.id}
+                      className="relative h-60 group overflow-hidden rounded-lg bg-gray-100"
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent z-10"></div>
+                      <div className="absolute inset-0 transition-transform duration-300 group-hover:scale-110">
+                        <Image
+                          src={
+                            cat.image ??
+                            categoryImages[cat.name] ??
+                            "/images/categories/placeholder.svg"
+                          }
+                          alt={`${cat.name} Shoes`}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                      <div className="absolute bottom-0 left-0 p-4 z-20 w-full">
+                        <h3 className="text-xl font-bold text-white mb-2">
+                          {cat.name}
+                        </h3>
+                        <Link
+                          href={`/products?category=${encodeURIComponent(
+                            cat.name.toLowerCase()
+                          )}`}
+                        >
+                          <Button variant="secondary" size="sm">
+                            Shop Now
+                          </Button>
+                        </Link>
+                      </div>
                     </div>
-                  </div>
-                )
-              )}
+                  ))}
             </div>
           </Container>
         </section>
@@ -110,32 +184,39 @@ export default function Home() {
               </Link>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {/* This would typically come from your database */}
-              {[1, 2, 3, 4].map((index) => (
-                <Link href={`/products/${index}`} key={index}>
-                  <div className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
-                    <div className="relative h-64">
-                      <Image
-                        src={`/images/products/placeholder.svg`}
-                        alt={`Featured Product ${index}`}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                    <div className="p-4">
-                      <h3 className="font-medium mb-1">
-                        Nike Air Max {index * 90}
-                      </h3>
-                      <p className="text-gray-600 text-sm mb-2">
-                        Running Shoes
-                      </p>
-                      <div className="flex justify-between items-center">
-                        <span className="font-bold">${index * 40 + 79}.99</span>
+              {featuredProducts.length === 0
+                ? // fallback placeholders when no featured products in DB
+                  [1, 2, 3, 4].map((index) => (
+                    <Link href={`/products/${index}`} key={index}>
+                      <div className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
+                        <div className="relative h-64">
+                          <Image
+                            src={`/images/products/placeholder.svg`}
+                            alt={`Featured Product ${index}`}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                </Link>
-              ))}
+                    </Link>
+                  ))
+                : featuredProducts.map((p) => (
+                    <ProductCard
+                      key={p.id}
+                      id={p.id}
+                      name={p.name}
+                      price={Number(p.price.toString())}
+                      image={
+                        p.images && p.images.length > 0
+                          ? p.images[0]
+                          : "/images/products/placeholder.svg"
+                      }
+                      category={p.category?.name}
+                      isNew={p.newArrival}
+                      isFeatured={p.featured}
+                      isBestseller={p.bestseller}
+                    />
+                  ))}
             </div>
           </Container>
         </section>

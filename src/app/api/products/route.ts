@@ -36,9 +36,7 @@ export async function GET(request: Request) {
           : {},
 
         // Category filter
-        category
-          ? { category: { name: { equals: category, mode: "insensitive" } } }
-          : {},
+        category ? { categoryId: category } : {},
 
         // Price range filter
         {

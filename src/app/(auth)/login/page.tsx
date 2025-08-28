@@ -8,6 +8,7 @@ import { z } from "zod";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FormInput } from "@/components/ui/form-input";
 import { Button } from "@/components/ui/button";
@@ -68,6 +69,15 @@ export default function LoginPage() {
   return (
     <Card className="w-full max-w-md">
       <CardHeader className="text-center">
+        <div className="flex justify-center mb-4">
+          <Image
+            src="/logo.jpg"
+            alt="Nike Shop"
+            width={60}
+            height={60}
+            className="object-contain"
+          />
+        </div>
         <CardTitle className="text-2xl font-bold">Login</CardTitle>
       </CardHeader>
       <CardContent>

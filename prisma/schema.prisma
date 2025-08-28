@@ -30,6 +30,7 @@ model User {
   reviews     Review[]
   wishlists   Wishlist[]
   addresses   Address[]
+  cart        Cart?
   
   @@map("users")
 }
@@ -73,6 +74,7 @@ model Product {
   orderItems OrderItem[]
   reviews    Review[]
   wishlists  Wishlist[]
+  cartItems  CartItem[]
 
   @@map("products")
 }
@@ -160,6 +162,33 @@ model Address {
   orders     Order[]
 
   @@map("addresses")
+}
+
+model Cart {
+  id        String     @id @default(cuid())
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String     @unique
+  items     CartItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@map("carts")
+}
+
+model CartItem {
+  id        String  @id @default(cuid())
+  cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  cartId    String
+  product   Product @relation(fields: [productId], references: [id])
+  productId String
+  quantity  Int
+  size      String
+  color     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([cartId, productId, size, color])
+  @@map("cart_items")
 }
 
 enum Role {

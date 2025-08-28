@@ -14,22 +14,24 @@ import { TrashIcon } from "./trash-icon";
 export function CartContent() {
   const { data: session } = useSession();
   const router = useRouter();
-  const { items, removeItem, updateQuantity, getTotal, clearCart } =
-    useCartStore();
+  const {
+    items,
+    removeItem,
+    updateQuantity,
+    getTotal,
+    clearCart,
+    isLoading,
+    error,
+  } = useCartStore();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
 
-  const handleUpdateQuantity = (
-    id: string,
-    size: string,
-    color: string,
-    newQuantity: number
-  ) => {
+  const handleUpdateQuantity = async (itemId: string, newQuantity: number) => {
     if (newQuantity < 1) return;
-    updateQuantity(id, size, color, newQuantity);
+    await updateQuantity(itemId, newQuantity);
   };
 
-  const handleRemoveItem = (id: string, size: string, color: string) => {
-    removeItem(id, size, color);
+  const handleRemoveItem = async (itemId: string) => {
+    await removeItem(itemId);
   };
 
   const handleCheckout = async () => {
@@ -68,6 +70,24 @@ export function CartContent() {
             <Button className="w-full">Browse Products</Button>
           </Link>
         </div>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-96">
+        <Spinner size="large" />
+        <span className="ml-2">Loading your cart...</span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-red-50 text-red-800 p-4 rounded-md">
+        <p className="font-medium">Error loading cart</p>
+        <p className="text-sm mt-1">{error}</p>
       </div>
     );
   }
@@ -116,9 +136,7 @@ export function CartContent() {
                     </div>
 
                     <button
-                      onClick={() =>
-                        handleRemoveItem(item.id, item.size, item.color)
-                      }
+                      onClick={() => handleRemoveItem(item.id)}
                       className="text-gray-400 hover:text-gray-500"
                       aria-label="Remove item"
                     >
@@ -139,12 +157,7 @@ export function CartContent() {
                         type="button"
                         className="px-2 py-1 border-r border-gray-300"
                         onClick={() =>
-                          handleUpdateQuantity(
-                            item.id,
-                            item.size,
-                            item.color,
-                            item.quantity - 1
-                          )
+                          handleUpdateQuantity(item.id, item.quantity - 1)
                         }
                       >
                         -
@@ -157,12 +170,7 @@ export function CartContent() {
                         onChange={(e) => {
                           const val = parseInt(e.target.value);
                           if (!isNaN(val)) {
-                            handleUpdateQuantity(
-                              item.id,
-                              item.size,
-                              item.color,
-                              val
-                            );
+                            handleUpdateQuantity(item.id, val);
                           }
                         }}
                       />
@@ -170,12 +178,7 @@ export function CartContent() {
                         type="button"
                         className="px-2 py-1 border-l border-gray-300"
                         onClick={() =>
-                          handleUpdateQuantity(
-                            item.id,
-                            item.size,
-                            item.color,
-                            item.quantity + 1
-                          )
+                          handleUpdateQuantity(item.id, item.quantity + 1)
                         }
                       >
                         +

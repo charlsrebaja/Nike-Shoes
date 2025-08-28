@@ -2,13 +2,16 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import Image from "next/image";
+import { FaShoppingCart } from "react-icons/fa";
 import { Container } from "./container";
 import { cn } from "@/lib/utils";
 import { Button } from "./button";
+import { Badge } from "./badge";
+import { useCartStore } from "@/store/cart-store";
 
 interface NavItem {
   label: string;
@@ -29,6 +32,15 @@ export function Navbar() {
   const pathname = usePathname();
   const { data: session } = useSession();
   const isAdmin = session?.user.role === "ADMIN";
+  const { getItemCount, setUser } = useCartStore();
+
+  // Calculate total cart items count
+  const cartItemCount = getItemCount();
+
+  // Update cart store when user changes
+  useEffect(() => {
+    setUser(session?.user?.id || null);
+  }, [session?.user?.id, setUser]);
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -67,11 +79,25 @@ export function Navbar() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "text-gray-700 hover:text-black",
+                  "text-gray-700 hover:text-black relative flex items-center",
                   pathname === item.href && "font-medium text-black"
                 )}
               >
-                {item.label}
+                {item.label === "Cart" ? (
+                  <>
+                    <FaShoppingCart className="h-5 w-5" />
+                    {cartItemCount > 0 && (
+                      <Badge
+                        variant="destructive"
+                        className="absolute -top-2 -right-3 h-5 w-5 flex items-center justify-center p-0 text-xs"
+                      >
+                        {cartItemCount > 99 ? "99+" : cartItemCount}
+                      </Badge>
+                    )}
+                  </>
+                ) : (
+                  item.label
+                )}
               </Link>
             ))}
           </nav>
@@ -81,17 +107,17 @@ export function Navbar() {
             {session ? (
               <div className="flex items-center space-x-4">
                 <Link href="/profile">
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2 cursor-pointer">
                     {session.user.image ? (
                       <Image
                         src={session.user.image}
                         alt={session.user.name || "User"}
                         width={32}
                         height={32}
-                        className="h-8 w-8 rounded-full"
+                        className="h-8 w-8 rounded-full cursor-pointer"
                       />
                     ) : (
-                      <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
+                      <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center cursor-pointer">
                         <span className="text-sm font-medium text-gray-600">
                           {session.user.name?.charAt(0) || "U"}
                         </span>
@@ -102,6 +128,7 @@ export function Navbar() {
                 <Button
                   variant="secondary"
                   onClick={() => signOut({ callbackUrl: "/" })}
+                  className="cursor-pointer"
                 >
                   Logout
                 </Button>
@@ -109,10 +136,12 @@ export function Navbar() {
             ) : (
               <>
                 <Link href="/login">
-                  <Button variant="secondary">Login</Button>
+                  <Button variant="secondary" className="cursor-pointer">
+                    Login
+                  </Button>
                 </Link>
                 <Link href="/register">
-                  <Button>Sign Up</Button>
+                  <Button className="cursor-pointer">Sign Up</Button>
                 </Link>
               </>
             )}
@@ -159,36 +188,62 @@ export function Navbar() {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "text-gray-700 hover:text-black",
+                    "text-gray-700 hover:text-black cursor-pointer relative",
                     pathname === item.href && "font-medium text-black"
                   )}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  {item.label}
+                  <span className="flex items-center">
+                    {item.label === "Cart" ? (
+                      <>
+                        <FaShoppingCart className="h-5 w-5 mr-2" />
+                        <span>Cart</span>
+                        {cartItemCount > 0 && (
+                          <Badge
+                            variant="destructive"
+                            className="ml-2 h-5 w-5 flex items-center justify-center p-0 text-xs"
+                          >
+                            {cartItemCount > 99 ? "99+" : cartItemCount}
+                          </Badge>
+                        )}
+                      </>
+                    ) : (
+                      item.label
+                    )}
+                  </span>
                 </Link>
               ))}
+
               {!session ? (
                 <div className="flex flex-col space-y-2 pt-4 border-t border-gray-100">
                   <Link
                     href="/login"
                     onClick={() => setIsMobileMenuOpen(false)}
+                    className="cursor-pointer"
                   >
-                    <Button variant="secondary" fullWidth>
+                    <Button
+                      variant="secondary"
+                      fullWidth
+                      className="cursor-pointer"
+                    >
                       Login
                     </Button>
                   </Link>
                   <Link
                     href="/register"
                     onClick={() => setIsMobileMenuOpen(false)}
+                    className="cursor-pointer"
                   >
-                    <Button fullWidth>Sign Up</Button>
+                    <Button fullWidth className="cursor-pointer">
+                      Sign Up
+                    </Button>
                   </Link>
                 </div>
               ) : (
                 <div>
                   <Link
                     href="/profile"
-                    className="pt-4 border-t border-gray-100 block"
+                    className="pt-4 border-t border-gray-100 block cursor-pointer"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <div className="flex items-center space-x-2">
@@ -198,16 +253,16 @@ export function Navbar() {
                           alt={session.user.name || "User"}
                           width={32}
                           height={32}
-                          className="h-8 w-8 rounded-full"
+                          className="h-8 w-8 rounded-full cursor-pointer"
                         />
                       ) : (
-                        <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
+                        <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center cursor-pointer">
                           <span className="text-sm font-medium text-gray-600">
                             {session.user.name?.charAt(0) || "U"}
                           </span>
                         </div>
                       )}
-                      <span className="text-gray-700">
+                      <span className="text-gray-700 cursor-pointer">
                         {session.user.name || session.user.email}
                       </span>
                     </div>
@@ -221,6 +276,7 @@ export function Navbar() {
                         setIsMobileMenuOpen(false);
                         signOut({ callbackUrl: "/" });
                       }}
+                      className="cursor-pointer"
                     >
                       Logout
                     </Button>

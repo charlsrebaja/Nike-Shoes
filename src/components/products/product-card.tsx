@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useCartStore, CartItem } from "@/store/cart-store";
+import { useCartStore } from "@/store/cart-store";
 
 interface ProductCardProps {
   id: string;
@@ -48,19 +48,8 @@ export function ProductCard({
     setIsAddingToCart(true);
 
     try {
-      // In a real app, we would first check if the product has variants
-      // For now, we'll just add it with default values
-      const item: CartItem = {
-        id,
-        name,
-        price,
-        image,
-        quantity: 1,
-        size: "US 9", // Default size
-        color: "Black", // Default color
-      };
-
-      addItem(item);
+      // Add item to cart using the new API
+      await addItem(id, 1, "US 9", "Black");
 
       // Show success notification (could be implemented with a toast)
     } catch (error) {
@@ -99,7 +88,7 @@ export function ProductCard({
           </div>
           <div className="mt-auto pt-3">
             <Button
-              variant="secondary"
+              variant="default"
               fullWidth
               onClick={handleQuickAdd}
               disabled={isAddingToCart}

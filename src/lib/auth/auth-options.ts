@@ -5,19 +5,24 @@ import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 // Prisma adapter package may not be installed in this workspace during static analysis.
 // If you have `@next-auth/prisma-adapter` or `@auth/prisma-adapter` installed, replace the adapter assignment below.
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import type { Adapter } from "next-auth/adapters";
 import { prisma } from "../db/prisma";
 import bcrypt from "bcrypt";
 
 export const authOptions: NextAuthOptions = {
-  // If Prisma adapter is available in your environment use it here, e.g.:
-  // adapter: PrismaAdapter(prisma) as Adapter,
-  // For static type-safety during development without the adapter package installed, provide a typed placeholder.
-  adapter: undefined as unknown as Adapter,
+  adapter: PrismaAdapter(prisma) as Adapter,
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      authorization: {
+        params: {
+          prompt: "consent",
+          access_type: "offline",
+          response_type: "code",
+        },
+      },
     }),
     CredentialsProvider({
       name: "Credentials",

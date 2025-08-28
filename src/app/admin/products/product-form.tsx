@@ -81,7 +81,11 @@ export function ProductForm({ product, categories }: ProductFormProps) {
     name: product?.name || "",
     description: product?.description || "",
     price: product?.price ? String(product.price) : "",
-    images: product?.images || ["", "", ""],
+    images: product?.images
+      ? product.images.filter((img) => img.trim() !== "").length > 0
+        ? product.images.filter((img) => img.trim() !== "")
+        : [""]
+      : [""],
     categoryId: product?.categoryId || categories[0]?.id || "",
     sizes:
       product?.sizes ||
@@ -161,11 +165,21 @@ export function ProductForm({ product, categories }: ProductFormProps) {
         throw new Error("Please fill in all required fields");
       }
 
-      // Filter out empty image URLs
-      const filteredImages = formData.images.filter((img) => img.trim() !== "");
-      if (filteredImages.length === 0) {
-        throw new Error("Please provide at least one product image");
-      }
+      // Filter out empty image URLs and validate URLs (optional)
+      const isValidUrl = (url: string): boolean => {
+        try {
+          new URL(url);
+          return true;
+        } catch {
+          return false;
+        }
+      };
+
+      const filteredImages = formData.images
+        .filter((img) => img.trim() !== "")
+        .filter((img) => isValidUrl(img));
+
+      // Images are now optional - no validation error if empty
 
       // Calculate active colors from selectedColors
       const activeColors = Object.keys(selectedColors).filter(
@@ -185,9 +199,14 @@ export function ProductForm({ product, categories }: ProductFormProps) {
       }
 
       // Prepare data for submission
+      const priceValue = parseFloat(formData.price);
+      if (isNaN(priceValue) || priceValue <= 0) {
+        throw new Error("Please enter a valid price greater than 0");
+      }
+
       const productData = {
         ...formData,
-        price: parseFloat(formData.price),
+        price: priceValue,
         images: filteredImages,
         colors: activeColors,
       };
@@ -210,6 +229,37 @@ export function ProductForm({ product, categories }: ProductFormProps) {
 
       if (!response.ok) {
         const data = await response.json();
+
+        // If there are detailed validation errors, show them
+        if (data.errors) {
+          const extractErrors = (obj: unknown, path = ""): string[] => {
+            const errors: string[] = [];
+
+            if (obj && typeof obj === "object") {
+              const objAsRecord = obj as Record<string, unknown>;
+
+              if (objAsRecord._errors && Array.isArray(objAsRecord._errors)) {
+                (objAsRecord._errors as string[]).forEach((error: string) => {
+                  errors.push(path ? `${path}: ${error}` : error);
+                });
+              }
+
+              // Recursively check nested objects
+              Object.keys(objAsRecord).forEach((key) => {
+                if (key !== "_errors") {
+                  const nestedPath = path ? `${path}.${key}` : key;
+                  errors.push(...extractErrors(objAsRecord[key], nestedPath));
+                }
+              });
+            }
+
+            return errors;
+          };
+
+          const errorMessages = extractErrors(data.errors).join(", ");
+          throw new Error(`Validation failed: ${errorMessages}`);
+        }
+
         throw new Error(data.message || "Failed to save product");
       }
 
@@ -335,19 +385,18 @@ export function ProductForm({ product, categories }: ProductFormProps) {
         <div className="space-y-4">
           <h2 className="text-lg font-medium">Product Images</h2>
           <p className="text-sm text-gray-500 mb-2">
-            Enter URLs for product images (at least one required)
+            Enter valid image URLs starting with https:// (optional)
           </p>
 
           {formData.images.map((image, index) => (
             <div key={index}>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                {index === 0 ? "Main Image*" : `Additional Image ${index}`}
+                {index === 0 ? "Main Image" : `Additional Image ${index}`}
               </label>
               <Input
                 value={image}
                 onChange={(e) => handleImageChange(index, e.target.value)}
                 placeholder="https://example.com/image.jpg"
-                required={index === 0}
               />
             </div>
           ))}

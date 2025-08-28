@@ -86,7 +86,7 @@ export default async function ProductDetailsPage({
             {/* Additional Images */}
             {product.images && product.images.length > 1 && (
               <div className="grid grid-cols-4 gap-2">
-                {product.images.slice(1).map((image, index) => (
+                {product.images.slice(1).map((image: string, index: number) => (
                   <div
                     key={index}
                     className="aspect-square relative rounded-lg overflow-hidden"
@@ -125,7 +125,7 @@ export default async function ProductDetailsPage({
             <div className="space-y-2">
               <h3 className="font-medium">Colors</h3>
               <div className="flex flex-wrap gap-2">
-                {product.colors.map((color, index) => (
+                {product.colors.map((color: string, index: number) => (
                   <span
                     key={index}
                     className="px-3 py-1 bg-gray-100 rounded-full text-sm"

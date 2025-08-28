@@ -12,7 +12,7 @@ const updateCartItemSchema = z.object({
 // PUT /api/cart/[itemId] - Update cart item quantity
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { itemId: string } }
+  { params }: { params: Promise<{ itemId: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -21,6 +21,7 @@ export async function PUT(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { itemId } = await params;
     const body = await request.json();
     const { quantity } = updateCartItemSchema.parse(body);
 
@@ -36,7 +37,7 @@ export async function PUT(
     // Check if item exists and belongs to user's cart
     const existingItem = await prisma.cartItem.findFirst({
       where: {
-        id: params.itemId,
+        id: itemId,
         cartId: cart.id,
       },
     });
@@ -48,13 +49,13 @@ export async function PUT(
     if (quantity === 0) {
       // Remove item if quantity is 0
       await prisma.cartItem.delete({
-        where: { id: params.itemId },
+        where: { id: itemId },
       });
       return NextResponse.json({ message: "Item removed from cart" });
     } else {
       // Update quantity
       const updatedItem = await prisma.cartItem.update({
-        where: { id: params.itemId },
+        where: { id: itemId },
         data: { quantity },
         include: {
           product: {
@@ -100,7 +101,7 @@ export async function PUT(
 // DELETE /api/cart/[itemId] - Remove item from cart
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { itemId: string } }
+  { params }: { params: Promise<{ itemId: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -108,6 +109,8 @@ export async function DELETE(
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    const { itemId } = await params;
 
     // Verify item belongs to user's cart
     const cart = await prisma.cart.findUnique({
@@ -121,7 +124,7 @@ export async function DELETE(
     // Check if item exists and belongs to user's cart
     const existingItem = await prisma.cartItem.findFirst({
       where: {
-        id: params.itemId,
+        id: itemId,
         cartId: cart.id,
       },
     });
@@ -131,7 +134,7 @@ export async function DELETE(
     }
 
     await prisma.cartItem.delete({
-      where: { id: params.itemId },
+      where: { id: itemId },
     });
 
     return NextResponse.json({ message: "Item removed from cart" });

@@ -2,7 +2,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import Image from "next/image";
@@ -20,11 +20,14 @@ interface NavItem {
   adminOnly?: boolean;
 }
 
+// Navigation items configuration
 const navItems: NavItem[] = [
   { label: "Home", href: "/" },
   { label: "Products", href: "/products" },
-  { label: "Cart", href: "/cart", protected: true },
-  { label: "Admin", href: "/admin/products", protected: true, adminOnly: true },
+  { label: "Categories", href: "/categories" },
+  { label: "Cart", href: "/cart" },
+  { label: "Orders", href: "/orders", protected: true },
+  { label: "Admin", href: "/admin", adminOnly: true },
 ];
 
 export function Navbar() {
@@ -290,3 +293,6 @@ export function Navbar() {
     </header>
   );
 }
+
+// Memoize the component to prevent unnecessary re-renders
+export default memo(Navbar);

@@ -15,7 +15,8 @@ const productSchema = z.object({
   categoryId: z.string().min(1, { message: "Category is required" }),
   images: z
     .array(z.string().url())
-    .min(1, { message: "At least one image is required" }),
+    .min(0, { message: "Images must be valid URLs" })
+    .default([]),
   sizes: z.record(z.string(), z.number().int().nonnegative()),
   colors: z
     .array(z.string())

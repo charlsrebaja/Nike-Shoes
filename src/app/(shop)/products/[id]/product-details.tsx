@@ -128,15 +128,7 @@ export function ProductDetails({
     setError(null);
 
     try {
-      addItem({
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        image: product.images[0],
-        quantity: quantity,
-        size: selectedSize,
-        color: selectedColor,
-      });
+      addItem(product.id, quantity, selectedSize, selectedColor);
 
       // Could show a success toast here
     } catch (error) {

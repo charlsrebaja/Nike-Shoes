@@ -1,6 +1,8 @@
-// src/app/page.tsx
-// All Unsplash image sources have been replaced with local images from:
-// /images/products, /images/categories, /images/banners
+// Revalidate every 30 minutes for fresh content
+export const revalidate = 1800;
+
+// Force static generation for better performance
+export const dynamic = 'force-static';
 import Image from "next/image";
 import Link from "next/link";
 import { Container } from "@/components/ui/container";

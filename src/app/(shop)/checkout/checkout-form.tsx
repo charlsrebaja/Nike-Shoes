@@ -1,7 +1,7 @@
 // src/app/(shop)/checkout/checkout-form.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useCartStore } from "@/store/cart-store";
 import { Button } from "@/components/ui/button";
@@ -31,6 +31,13 @@ export function CheckoutForm({ user }: CheckoutFormProps) {
     country: "",
   });
 
+  // Redirect to cart if empty
+  useEffect(() => {
+    if (items.length === 0) {
+      router.push("/cart");
+    }
+  }, [items.length, router]);
+
   // Calculate totals
   const subtotal = getTotal();
   const shipping = subtotal > 0 ? (subtotal > 100 ? 0 : 10) : 0;
@@ -50,21 +57,34 @@ export function CheckoutForm({ user }: CheckoutFormProps) {
     setIsLoading(true);
 
     try {
-      // In the next step, we will add Stripe integration here
+      // Map cart items to checkout format
+      const checkoutItems = items.map((item) => ({
+        id: item.productId, // Use productId as the id for checkout
+        name: item.name,
+        price: item.price,
+        image: item.image,
+        quantity: item.quantity,
+        size: item.size,
+        color: item.color,
+      }));
+
       const response = await fetch("/api/checkout", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          items,
+          items: checkoutItems,
           customer: formData,
           total,
         }),
       });
 
       if (!response.ok) {
-        throw new Error("Checkout failed");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.message || `Checkout failed: ${response.status}`
+        );
       }
 
       const data = await response.json();
@@ -80,14 +100,18 @@ export function CheckoutForm({ user }: CheckoutFormProps) {
     } catch (error) {
       console.error("Checkout error:", error);
       // Show error message to user
+      alert(
+        error instanceof Error
+          ? error.message
+          : "Checkout failed. Please try again."
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
   if (items.length === 0) {
-    router.push("/cart");
-    return <div className="py-8 text-center">Your cart is empty</div>;
+    return <div className="py-8 text-center">Redirecting to cart...</div>;
   }
 
   return (

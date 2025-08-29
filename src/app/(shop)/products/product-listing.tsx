@@ -42,15 +42,34 @@ export function ProductListing({
   const [hasMore, setHasMore] = useState(false);
   const [totalProducts, setTotalProducts] = useState(0);
 
-  // Parse search params
-  const search = (searchParams.search as string) || "";
-  const categoryId = (searchParams.category as string) || "";
-  const minPrice = (searchParams.minPrice as string) || "0";
-  const maxPrice = (searchParams.maxPrice as string) || "1000";
-  const sort = (searchParams.sort as string) || "";
-  const featured = searchParams.featured === "true";
-  const newArrival = searchParams.new === "true";
-  const bestseller = searchParams.bestseller === "true";
+  // Parse search params - handle both string and string[] types
+  const search = Array.isArray(searchParams.search)
+    ? searchParams.search[0] || ""
+    : searchParams.search || "";
+  const categoryParam = Array.isArray(searchParams.category)
+    ? searchParams.category[0] || ""
+    : searchParams.category || "";
+  const minPrice = Array.isArray(searchParams.minPrice)
+    ? searchParams.minPrice[0] || "0"
+    : searchParams.minPrice || "0";
+  const maxPrice = Array.isArray(searchParams.maxPrice)
+    ? searchParams.maxPrice[0] || "1000"
+    : searchParams.maxPrice || "1000";
+  const sort = Array.isArray(searchParams.sort)
+    ? searchParams.sort[0] || ""
+    : searchParams.sort || "";
+  const featured =
+    (Array.isArray(searchParams.featured)
+      ? searchParams.featured[0]
+      : searchParams.featured) === "true";
+  const newArrival =
+    (Array.isArray(searchParams.new)
+      ? searchParams.new[0]
+      : searchParams.new) === "true";
+  const bestseller =
+    (Array.isArray(searchParams.bestseller)
+      ? searchParams.bestseller[0]
+      : searchParams.bestseller) === "true";
 
   // Fetch products based on filters
   useEffect(() => {
@@ -62,7 +81,7 @@ export function ProductListing({
         // Build query string from search params
         const queryParams = new URLSearchParams();
         if (search) queryParams.set("search", search);
-        if (categoryId) queryParams.set("category", categoryId);
+        if (categoryParam) queryParams.set("category", categoryParam);
         if (minPrice) queryParams.set("minPrice", minPrice);
         if (maxPrice) queryParams.set("maxPrice", maxPrice);
         if (sort) queryParams.set("sort", sort);
@@ -99,7 +118,7 @@ export function ProductListing({
     fetchProducts();
   }, [
     search,
-    categoryId,
+    categoryParam,
     minPrice,
     maxPrice,
     sort,
@@ -114,7 +133,7 @@ export function ProductListing({
     setPage(1);
   }, [
     search,
-    categoryId,
+    categoryParam,
     minPrice,
     maxPrice,
     sort,

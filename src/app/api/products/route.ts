@@ -11,7 +11,7 @@ export async function GET(request: Request) {
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "12");
     const search = searchParams.get("search") || "";
-    const category = searchParams.get("category");
+    const categoryParam = searchParams.get("category");
     const minPrice = parseFloat(searchParams.get("minPrice") || "0");
     const maxPrice = parseFloat(searchParams.get("maxPrice") || "1000");
     const sort = searchParams.get("sort");
@@ -19,39 +19,47 @@ export async function GET(request: Request) {
     const newArrival = searchParams.get("new") === "true";
     const bestseller = searchParams.get("bestseller") === "true";
 
+    // Parse categories (support multiple categories)
+    const categories = categoryParam
+      ? categoryParam.split(",").filter(Boolean)
+      : [];
+
     // Calculate offset
     const skip = (page - 1) * limit;
 
     // Build where clause
-    const where: Prisma.ProductWhereInput = {
-      AND: [
-        // Search term
-        search
-          ? {
-              OR: [
-                { name: { contains: search, mode: "insensitive" } },
-                { description: { contains: search, mode: "insensitive" } },
-              ],
-            }
-          : {},
+    const where: Prisma.ProductWhereInput = {};
 
-        // Category filter
-        category ? { categoryId: category } : {},
+    // Add conditions only if they have values
+    if (search) {
+      where.OR = [
+        { name: { contains: search, mode: "insensitive" } },
+        { description: { contains: search, mode: "insensitive" } },
+      ];
+    }
 
-        // Price range filter
-        {
-          price: {
-            gte: minPrice,
-            lte: maxPrice,
-          },
-        },
+    if (categories.length > 0) {
+      where.categoryId = {
+        in: categories,
+      };
+    }
 
-        // Product type filters
-        featured ? { featured: true } : {},
-        newArrival ? { newArrival: true } : {},
-        bestseller ? { bestseller: true } : {},
-      ],
+    // Price range filter (always applied)
+    where.price = {
+      gte: minPrice,
+      lte: maxPrice,
     };
+
+    // Product type filters
+    if (featured) {
+      where.featured = true;
+    }
+    if (newArrival) {
+      where.newArrival = true;
+    }
+    if (bestseller) {
+      where.bestseller = true;
+    }
 
     // Build order by
     let orderBy: Prisma.ProductOrderByWithRelationInput = {};

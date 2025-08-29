@@ -51,7 +51,7 @@ const sampleProducts = [
     description:
       "High-performance basketball shoe with elite cushioning and strong ankle support, designed for explosive play.",
     price: 199.99,
-    images: ["/images/products/lebron20.jpg"],
+    images: ["/images/products/product4.jpg"],
     sizes: { "US 8": 5, "US 9": 12, "US 10": 10, "US 11": 8 },
     colors: ["Black/Gold", "White/Red"],
     categoryName: "Basketball",
@@ -64,7 +64,7 @@ const sampleProducts = [
     description:
       "Lightweight and responsive shoe built for agility and smooth transitions, perfect for versatile scorers.",
     price: 179.99,
-    images: ["/images/products/kd16.jpg"],
+    images: ["/images/products/product5.jpg"],
     sizes: { "US 8": 6, "US 9": 10, "US 10": 12 },
     colors: ["Blue/White", "Black/Silver"],
     categoryName: "Basketball",
@@ -77,7 +77,7 @@ const sampleProducts = [
     description:
       "Modern Jordan sneaker combining heritage design with advanced tech for maximum performance.",
     price: 189.99,
-    images: ["/images/products/jordan37.jpg"],
+    images: ["/images/products/product6.jpg"],
     sizes: { "US 8": 7, "US 9": 14, "US 10": 9, "US 11": 6 },
     colors: ["Red/Black", "White/Blue"],
     categoryName: "Basketball",
@@ -90,7 +90,7 @@ const sampleProducts = [
     description:
       "Lightweight basketball shoe with excellent traction and sleek design, endorsed by top athletes.",
     price: 149.99,
-    images: ["/images/products/puma-clyde.jpg"],
+    images: ["/images/products/product7.jpg"],
     sizes: { "US 8": 8, "US 9": 10, "US 10": 11 },
     colors: ["White/Black", "Green/Yellow"],
     categoryName: "Basketball",
@@ -103,7 +103,7 @@ const sampleProducts = [
     description:
       "Signature shoe designed for quick cuts and high-speed play, optimized for guards.",
     price: 159.99,
-    images: ["/images/products/trae-young1.jpg"],
+    images: ["/images/products/product8.jpg"],
     sizes: { "US 7": 5, "US 8": 7, "US 9": 10, "US 10": 8 },
     colors: ["Black/Neon", "White/Blue"],
     categoryName: "Basketball",
@@ -116,7 +116,7 @@ const sampleProducts = [
     description:
       "Stability-focused shoe with strong ankle support, engineered for all-around performance.",
     price: 169.99,
-    images: ["/images/products/kawhi2.jpg"],
+    images: ["/images/products/product9.jpg"],
     sizes: { "US 8": 6, "US 9": 12, "US 10": 7, "US 11": 5 },
     colors: ["Black/White", "Grey/Blue"],
     categoryName: "Basketball",
@@ -129,7 +129,7 @@ const sampleProducts = [
     description:
       "Giannis Antetokounmpo’s signature shoe with explosive cushioning and bold design.",
     price: 179.99,
-    images: ["/images/products/freak4.jpg"],
+    images: ["/images/products/product10.jpg"],
     sizes: { "US 8": 8, "US 9": 15, "US 10": 12 },
     colors: ["Black/White", "Orange/Green"],
     categoryName: "Basketball",
@@ -142,7 +142,7 @@ const sampleProducts = [
     description:
       "Stephen Curry’s lightweight shoe with unmatched traction, perfect for shooters.",
     price: 169.99,
-    images: ["/images/products/curry9.jpg"],
+    images: ["/images/products/product11.jpg"],
     sizes: { "US 7": 5, "US 8": 9, "US 9": 13 },
     colors: ["Blue/Yellow", "Black/White"],
     categoryName: "Basketball",
@@ -155,7 +155,7 @@ const sampleProducts = [
     description:
       "Signature James Harden shoe with premium cushioning and design for ball handlers.",
     price: 179.99,
-    images: ["/images/products/harden7.jpg"],
+    images: ["/images/products/product12.jpg"],
     sizes: { "US 8": 7, "US 9": 11, "US 10": 10 },
     colors: ["Black/Red", "White/Purple"],
     categoryName: "Basketball",
@@ -168,7 +168,7 @@ const sampleProducts = [
     description:
       "Durable and cushioned basketball shoe tailored for explosive power and comfort.",
     price: 169.99,
-    images: ["/images/products/freak3.jpg"],
+    images: ["/images/products/product13.jpg"],
     sizes: { "US 8": 6, "US 9": 10, "US 10": 12, "US 11": 7 },
     colors: ["Black/White", "Blue/Yellow"],
     categoryName: "Basketball",

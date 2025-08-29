@@ -71,7 +71,7 @@ export function Navbar() {
                 height={36}
                 className="object-contain mr-2"
               />
-              <span>Nike Shop</span>
+             
             </Link>
           </div>
 

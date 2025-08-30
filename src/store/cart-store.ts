@@ -298,9 +298,9 @@ export const useCartStore = create<CartStore>()(
             const cartItem: CartItem = {
               id: updatedItem.id,
               productId: updatedItem.productId,
-              name: updatedItem.product.name,
-              price: parseFloat(updatedItem.product.price.toString()),
-              image: updatedItem.product.images[0] || "",
+              name: updatedItem.name,
+              price: updatedItem.price,
+              image: updatedItem.image,
               quantity: updatedItem.quantity,
               size: updatedItem.size,
               color: updatedItem.color,

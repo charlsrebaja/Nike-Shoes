@@ -60,14 +60,16 @@ export function CartContent() {
   // If cart is empty
   if (items.length === 0) {
     return (
-      <div className="py-12 text-center">
-        <div className="bg-gray-50 rounded-lg p-8 max-w-lg mx-auto">
-          <h2 className="text-2xl font-bold mb-4">Your cart is empty</h2>
-          <p className="text-gray-600 mb-8">
+      <div className="py-8 sm:py-12 text-center">
+        <div className="bg-gray-50 rounded-lg p-6 sm:p-8 max-w-lg mx-auto">
+          <h2 className="text-xl sm:text-2xl font-bold mb-4">
+            Your cart is empty
+          </h2>
+          <p className="text-gray-600 mb-6 sm:mb-8 text-sm sm:text-base">
             Looks like you haven&apos;t added any products to your cart yet.
           </p>
           <Link href="/products">
-            <Button className="w-full">Browse Products</Button>
+            <Button className="w-full sm:w-auto">Browse Products</Button>
           </Link>
         </div>
       </div>
@@ -76,24 +78,26 @@ export function CartContent() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-96">
+      <div className="flex flex-col justify-center items-center h-64 sm:h-96">
         <Spinner size="large" />
-        <span className="ml-2">Loading your cart...</span>
+        <span className="ml-2 mt-4 text-sm sm:text-base">
+          Loading your cart...
+        </span>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="bg-red-50 text-red-800 p-4 rounded-md">
-        <p className="font-medium">Error loading cart</p>
-        <p className="text-sm mt-1">{error}</p>
+      <div className="bg-red-50 text-red-800 p-4 sm:p-6 rounded-md mx-4 sm:mx-0">
+        <p className="font-medium text-sm sm:text-base">Error loading cart</p>
+        <p className="text-xs sm:text-sm mt-1">{error}</p>
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
       {/* Cart Items */}
       <div className="lg:col-span-2">
         <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
@@ -101,23 +105,24 @@ export function CartContent() {
             {items.map((item) => (
               <div
                 key={`${item.id}-${item.size}-${item.color}`}
-                className="p-6 flex flex-col sm:flex-row gap-4"
+                className="p-4 sm:p-6 flex flex-col sm:flex-row gap-4"
               >
                 {/* Product Image */}
-                <div className="w-full sm:w-24 h-24 relative flex-shrink-0">
+                <div className="w-full sm:w-24 h-32 sm:h-24 relative flex-shrink-0 mx-auto sm:mx-0">
                   <Image
                     src={item.image}
                     alt={item.name}
                     fill
-                    className="object-cover rounded-md"
+                    className="object-contain sm:object-cover rounded-md"
+                    sizes="(max-width: 640px) 100vw, 96px"
                   />
                 </div>
 
                 {/* Product Info */}
-                <div className="flex-grow">
-                  <div className="flex justify-between">
-                    <div>
-                      <h3 className="font-medium">
+                <div className="flex-grow min-w-0">
+                  <div className="flex flex-col sm:flex-row sm:justify-between gap-2">
+                    <div className="flex-grow min-w-0">
+                      <h3 className="font-medium text-sm sm:text-base truncate sm:whitespace-normal">
                         <Link
                           href={`/products/${item.id}`}
                           className="hover:underline"
@@ -125,64 +130,68 @@ export function CartContent() {
                           {item.name}
                         </Link>
                       </h3>
-                      <div className="mt-1 text-sm text-gray-500">
-                        <span>Size: {item.size}</span>
-                        <span className="mx-2">|</span>
-                        <span>Color: {item.color}</span>
+                      <div className="mt-1 text-xs sm:text-sm text-gray-500">
+                        <div className="flex flex-wrap gap-1 sm:gap-2">
+                          <span>Size: {item.size}</span>
+                          <span className="hidden sm:inline">|</span>
+                          <span>Color: {item.color}</span>
+                        </div>
                       </div>
-                      <div className="mt-1 font-medium">
+                      <div className="mt-1 font-medium text-sm sm:text-base">
                         ${item.price.toFixed(2)}
                       </div>
                     </div>
 
                     <button
                       onClick={() => handleRemoveItem(item.id)}
-                      className="text-gray-400 hover:text-gray-500"
+                      className="self-start sm:self-center text-gray-400 hover:text-gray-500 flex-shrink-0"
                       aria-label="Remove item"
                     >
-                      <TrashIcon className="h-5 w-5" />
+                      <TrashIcon className="h-4 w-4 sm:h-5 sm:w-5" />
                     </button>
                   </div>
 
                   {/* Quantity Selector */}
-                  <div className="mt-2 flex items-center">
-                    <label
-                      htmlFor={`quantity-${item.id}`}
-                      className="text-sm text-gray-700 mr-2"
-                    >
-                      Qty:
-                    </label>
-                    <div className="flex border border-gray-300 rounded">
-                      <button
-                        type="button"
-                        className="px-2 py-1 border-r border-gray-300"
-                        onClick={() =>
-                          handleUpdateQuantity(item.id, item.quantity - 1)
-                        }
+                  <div className="mt-3 sm:mt-2 flex items-center justify-between sm:justify-start gap-2">
+                    <div className="flex items-center gap-2">
+                      <label
+                        htmlFor={`quantity-${item.id}`}
+                        className="text-xs sm:text-sm text-gray-700 font-medium"
                       >
-                        -
-                      </button>
-                      <input
-                        id={`quantity-${item.id}`}
-                        type="text"
-                        className="w-12 text-center"
-                        value={item.quantity}
-                        onChange={(e) => {
-                          const val = parseInt(e.target.value);
-                          if (!isNaN(val)) {
-                            handleUpdateQuantity(item.id, val);
+                        Qty:
+                      </label>
+                      <div className="flex border border-gray-300 rounded">
+                        <button
+                          type="button"
+                          className="px-2 py-1 border-r border-gray-300 text-sm hover:bg-gray-50"
+                          onClick={() =>
+                            handleUpdateQuantity(item.id, item.quantity - 1)
                           }
-                        }}
-                      />
-                      <button
-                        type="button"
-                        className="px-2 py-1 border-l border-gray-300"
-                        onClick={() =>
-                          handleUpdateQuantity(item.id, item.quantity + 1)
-                        }
-                      >
-                        +
-                      </button>
+                        >
+                          -
+                        </button>
+                        <input
+                          id={`quantity-${item.id}`}
+                          type="text"
+                          className="w-10 sm:w-12 text-center text-sm"
+                          value={item.quantity}
+                          onChange={(e) => {
+                            const val = parseInt(e.target.value);
+                            if (!isNaN(val)) {
+                              handleUpdateQuantity(item.id, val);
+                            }
+                          }}
+                        />
+                        <button
+                          type="button"
+                          className="px-2 py-1 border-l border-gray-300 text-sm hover:bg-gray-50"
+                          onClick={() =>
+                            handleUpdateQuantity(item.id, item.quantity + 1)
+                          }
+                        >
+                          +
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
